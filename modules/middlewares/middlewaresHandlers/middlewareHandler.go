@@ -2,13 +2,19 @@ package middlewaresHandlers
 
 import (
 	"github.com/NATCHAYATP/E-Commerce/config"
+	"github.com/NATCHAYATP/E-Commerce/modules/entities"
 	"github.com/NATCHAYATP/E-Commerce/modules/middlewares/middlewaresUsecases"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 )
 
+type middlewareHandlersErrCode string
+const (
+	routerCheckErr middlewareHandlersErrCode = "middlewares-001"
+)
 type IMiddlewaresHandler interface {
 	Cors() fiber.Handler
+	RouterCheck() fiber.Handler
 }
 
 type middlewaresHandler struct {
@@ -33,4 +39,14 @@ func (h *middlewaresHandler) Cors() fiber.Handler {
 		ExposeHeaders:    "",
 		MaxAge:           0,
 	})
+}
+
+func (h *middlewaresHandler) RouterCheck() fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		return entities.NewResponse(c).Error(
+			fiber.ErrNotFound.Code,
+			string(routerCheckErr),
+			"router not found",
+		).Res()
+	}
 }
