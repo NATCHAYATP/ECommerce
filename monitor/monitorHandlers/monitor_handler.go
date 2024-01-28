@@ -3,7 +3,7 @@ package monitorHandlers
 import (
 	"github.com/NATCHAYATP/E-Commerce/config"
 	"github.com/NATCHAYATP/E-Commerce/modules/entities"
-	"github.com/Rayato159/kawaii-shop-tutorial/modules/monitor"
+	"github.com/NATCHAYATP/E-Commerce/monitor"
 	"github.com/gofiber/fiber/v2"
 )
 
