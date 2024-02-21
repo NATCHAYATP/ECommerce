@@ -1,6 +1,8 @@
 package usersRepositories
 
 import (
+	"fmt"
+
 	"github.com/NATCHAYATP/E-Commerce/modules/users"
 	"github.com/NATCHAYATP/E-Commerce/modules/users/usersPatterns"
 	"github.com/jmoiron/sqlx"
@@ -8,6 +10,7 @@ import (
 
 type IUsersRepository interface {
 	InsertUser(req *users.UserRegisterReq, isAdmin bool) (*users.UserPassport, error)
+	FindOneUserByEmail(email string) (*users.UserCredentialCheck, error)
 }
 
 type usersRepository struct {
@@ -22,14 +25,14 @@ func UsersRepository(db *sqlx.DB) IUsersRepository {
 
 func (r *usersRepository) InsertUser(req *users.UserRegisterReq, isAdmin bool) (*users.UserPassport, error) {
 	result := usersPatterns.InsertUser(r.db, req, isAdmin)
-	
+
 	var err error
 	if isAdmin {
 		result, err = result.Admin()
 		if err != nil {
 			return nil, err
 		}
-	}else{
+	} else {
 		result, err = result.Customer()
 		if err != nil {
 			return nil, err
@@ -41,6 +44,24 @@ func (r *usersRepository) InsertUser(req *users.UserRegisterReq, isAdmin bool) (
 	user, err := result.Result()
 	if err != nil {
 		return nil, err
+	}
+	return user, nil
+}
+
+func (r *usersRepository) FindOneUserByEmail(email string) (*users.UserCredentialCheck, error) {
+	query := `
+	SELECT
+		"id",
+		"email",
+		"password",
+		"username",
+		"role_id"
+	FROM "users"
+	WHERE "email" = $1;`
+
+	user := new(users.UserCredentialCheck)
+	if err := r.db.Get(user, query, email); err != nil {
+		return nil, fmt.Errorf("user not found")
 	}
 	return user, nil
 }

@@ -15,15 +15,26 @@ type User struct {
 }
 
 type UserRegisterReq struct {
-	Email    string `db:"email" json:"email" form:"email"` 
+	Email    string `db:"email" json:"email" form:"email"`
 	Password string `db:"password" json:"password" form:"password"`
 	Username string `db:"username" json:"username" form:"username"`
+}
+type UserCredential struct {
+	Email    string `db:"email" json:"email" form:"email"`
+	Password string `db:"password" json:"password" form:"password"`
+}
+type UserCredentialCheck struct {
+	Id       string `db:"id"`
+	Email    string `db:"email"`
+	Password string `db:"password"`
+	Username string `db:"username"`
+	RoleId   int    `db:"role_id"`
 }
 
 // hashing password
 func (obj *UserRegisterReq) BcryptHashing() error {
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(obj.Password), 10)
-	if err != nil{
+	if err != nil {
 		return fmt.Errorf("hashed password failed: %v", err)
 	}
 	obj.Password = string(hashedPassword)
@@ -40,13 +51,17 @@ func (obj *UserRegisterReq) IsEmail() bool {
 }
 
 type UserPassport struct {
-	User *User `json:"user"`
+	User  *User      `json:"user"`
 	Token *UserToken `json:"token"`
 }
 
 type UserToken struct {
-	Id string `db:"id" json:"id"`
-	AccessToken string `db: "access_token" json:"access_token"`
+	Id           string `db:"id" json:"id"`
+	AccessToken  string `db:"access_token" json:"access_token"`
 	RefreshToken string `db:"refresh_token" json:"refresh_token"`
 }
 
+type UserClaims struct {
+	Id     string `db:"id" json:"id"`
+	RoleId int    `db:"role" json:"role"`
+}
